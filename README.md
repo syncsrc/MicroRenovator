@@ -5,7 +5,7 @@ Pre-OS microcode updater
 
 This application is designed to modify the EFI partition and bootloader of
 your system. Users acknowledge that running this program may result in
-corruption of the operating system or user data.
+destruction of the operating system and/or user data.
 
 
 ## Usage
