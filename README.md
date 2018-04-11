@@ -19,7 +19,7 @@ The installer will perform the following actions:
 4. copy the included microcode updater to the EFI partition
 5. add a startup script to run the microcode updater prior to the OS bootloader
 
-Verified with Fedora 27-1.6
+Tested using Fedora-Workstation-Live-x86_64-27-1.6.iso
 
 
 ## Building
