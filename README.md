@@ -38,10 +38,11 @@ To use the resulting files instead of the included .efi binaries, change the "ed
 
 ## ToDo
 - howto verify microcode in LiveCD /lib/firmware/intel-ucode/ folder is good?
+- add "--date-after" switch to iucode_tool usage?
+- add run-time warnings
 - add uninstaller
 - verify on windows installs (\EFI\Microsoft\Boot\bootmgfw.efi)
 - error handling in Uload.c
 - handle Uload.efi errors in startup.nsh
-- add "--date-after" switch to iucode_tool usage?
 - S3 callback?
 
