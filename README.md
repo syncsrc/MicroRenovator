@@ -27,13 +27,13 @@ Tested using Fedora-Workstation-Live-x86_64-27-1.6.iso
 Building the EFI applications requires an EDK2 environment:
 https://github.com/tianocore/tianocore.github.io/wiki/Common-instructions
 
-Copy Uload directory into the edk2/ folder, and run the following:
+Copy the Uload directory into the edk2/ folder, and run the following:
 ```
 build -a X64 -p ShellPkg/ShellPkg.dsc -b RELEASE
 build -a X64 -p Uload/Uload.dsc -b RELEASE
 ```
 
-To use the resulting files, change the "edk2_dir" in uRenovate.sh
+To use the resulting files instead of the include .efi binaries, change the "edk2_dir" in uRenovate.sh
 
 
 ## ToDo
