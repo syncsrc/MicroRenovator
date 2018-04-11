@@ -33,11 +33,11 @@ build -a X64 -p ShellPkg/ShellPkg.dsc -b RELEASE
 build -a X64 -p Uload/Uload.dsc -b RELEASE
 ```
 
-To use the resulting files instead of the include .efi binaries, change the "edk2_dir" in uRenovate.sh
+To use the resulting files instead of the included .efi binaries, change the "edk2_dir" in uRenovate.sh
 
 
 ## ToDo
-- howto verify microcode in /lib/firmware/intel-ucode/ is good?
+- howto verify microcode in LiveCD /lib/firmware/intel-ucode/ folder is good?
 - add uninstaller
 - verify on windows installs (\EFI\Microsoft\Boot\bootmgfw.efi)
 - error handling in Uload.c
