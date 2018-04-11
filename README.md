@@ -1,8 +1,14 @@
-# MicroRenovator
+## MicroRenovator
 Pre-OS microcode updater
 
+# WARNING
 
-# Usage
+This application is designed to modify the EFI partition and bootloader of
+your system. Users acknowledge that running this program may result in
+corruption of the operating system or user data.
+
+
+## Usage
 
 Boot the target system using a linux LiveCD or USB. Check out this
 repository, and run uRenovate.sh to install the microcode updater.
@@ -15,10 +21,8 @@ The installer will perform the following actions:
 
 Verified with Fedora 27-1.6
 
-FIXME: howto verify/install microcode in /lib/firmware/intel-ucode/ is good?
 
-
-# Building
+## Building
 
 Building the EFI applications requires an EDK2 environment:
 https://github.com/tianocore/tianocore.github.io/wiki/Common-instructions
@@ -32,7 +36,8 @@ build -a X64 -p Uload/Uload.dsc -b RELEASE
 To use the resulting files, change the "edk2_dir" in uRenovate.sh
 
 
-# ToDo
+## ToDo
+- howto verify microcode in /lib/firmware/intel-ucode/ is good?
 - add uninstaller
 - verify on windows installs (\EFI\Microsoft\Boot\bootmgfw.efi)
 - error handling in Uload.c
