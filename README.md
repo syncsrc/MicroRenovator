@@ -10,7 +10,7 @@ destruction of the operating system and/or user data.
 
 ## Usage
 
-Boot the target system using a linux LiveCD or USB. Check out this
+Boot the target system using a linux LiveCD or USB. Clone this
 repository, and run uRenovate.sh to install the microcode updater.
 The installer will perform the following actions:
 1. find appropriate microcode for the current system
@@ -33,12 +33,13 @@ build -a X64 -p ShellPkg/ShellPkg.dsc -b RELEASE
 build -a X64 -p Uload/Uload.dsc -b RELEASE
 ```
 
-To use the resulting files instead of the included .efi binaries, change the "edk2_dir" in uRenovate.sh
+To use the resulting files instead of the provided .efi binaries, change the "edk2_dir" in uRenovate.sh
 
 
 ## ToDo
 - howto verify microcode in LiveCD /lib/firmware/intel-ucode/ folder is good?
-- add "--date-after" switch to iucode_tool usage?
+- add "--date-after" switch to iucode_tool usage
+- install microcode_ctl updates
 - add run-time warnings
 - add uninstaller
 - verify on windows installs (\EFI\Microsoft\Boot\bootmgfw.efi)
