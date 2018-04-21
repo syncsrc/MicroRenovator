@@ -4,8 +4,8 @@ Pre-OS microcode updater
 # WARNING
 
 This application is designed to modify the EFI partition and bootloader of
-your system. Users acknowledge that running this program may result in
-destruction of the operating system and/or user data.
+your system. Users acknowledge that running this program can result 
+in corruption of the operating system and loss of data.
 
 
 ## Usage
