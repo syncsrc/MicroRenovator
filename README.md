@@ -37,13 +37,13 @@ To use the resulting files instead of the provided .efi binaries, change the "ed
 
 
 ## ToDo
-- install latest microcode_ctl package
-- howto verify microcode in LiveCD /lib/firmware/intel-ucode/ folder is good?
--- add "--date-after" switch to iucode_tool usage?
-- add run-time warnings
-- add uninstaller
-- verify on windows installs (\EFI\Microsoft\Boot\bootmgfw.efi)
-- error handling in Uload.c
-- handle Uload.efi errors in startup.nsh
-- S3 callback?
+* install latest microcode_ctl package
+* howto verify microcode in LiveCD /lib/firmware/intel-ucode/ folder is good?
+** add "--date-after" switch to iucode_tool usage?
+* add run-time warnings
+* add uninstaller
+* verify on windows installs (\EFI\Microsoft\Boot\bootmgfw.efi)
+* error handling in Uload.c
+* handle Uload.efi errors in startup.nsh
+* S3 callback?
 
