@@ -12,9 +12,9 @@ fi
 
 ## Install intel microcode tool
 if [ -e /etc/redhat-release ]; then
-    dnf -y install iucode-tool
+    dnf -y install iucode-tool microcode_ctl emacs-nox
 elif [ -e /etc/debian_version ]; then
-    apt -y install iucode-tool
+    apt -y install iucode-tool intel-microcode
 fi
 
 ## find appropriate microcode file for this system
@@ -29,9 +29,10 @@ else
 fi
 
 ## try to find EFI boot partition
-guesses=$(lsblk -i -o NAME,SIZE,TYPE,FSTYPE | grep "part.*fat" | wc -l)
+#guesses=$(lsblk -i -o NAME,SIZE,TYPE,FSTYPE | grep "part.*fat" | wc -l)
+guesses=$(lsblk -i -o NAME,SIZE,TYPE,MOUNTPOINT,FSTYPE | grep "part.*fat" | grep -v "initramfs.live" | wc -l)
 if [ $guesses -eq 1 ]; then
-    part=$(lsblk -i -o NAME,SIZE,TYPE,FSTYPE | grep "part.*fat" | cut -d " " -f 1 | sed 's/|-//')
+    part=$(lsblk -i -o NAME,SIZE,TYPE,MOUNTPOINT,FSTYPE | grep "part.*fat" | grep -v "initramfs.live" | cut -d " " -f 1 | sed 's/|-//')
     echo "Found an EFI partition: $part"
 elif [ $guesses -eq 0 ]; then
     echo "Could not find an EFI partition, exiting."
@@ -56,7 +57,7 @@ else
     mkdir -p /mnt/efi
 fi
 echo "Mounting EFI partition at /mnt/efi/"
-mount /dev/vda1 /mnt/efi/
+mount $(find /dev -name $part) /mnt/efi/
 
 ## Build list of bootloader files from EFI boot variables and defaults
 bootloader=""
@@ -64,10 +65,13 @@ bootloaders=""
 set +e
 testboot=$(efivar -l | grep -o Boot0...)
 for boot in $testboot; do
-    bootloaders="$bootloaders $(efibootdump $boot | grep -o "File.*efi" | awk -F'\' '{print $NF}')"
+    set -x
+    bootloaders="$bootloaders $(efibootdump $boot | grep -io "File.*efi" | awk -F'\' '{print $NF}')"
+    set +x
 done
 set -e
 bootloaders=$(echo "$bootloaders bootx64.efi bootia32.efi" | sed 's/^ //')
+#echo "Will check for the following bootloaders:", $bootloaders
 
 ## Look for bootloader files in EFI partition
 for entry in $bootloaders; do
@@ -88,8 +92,8 @@ for entry in $bootloaders; do
 	    mv $bootloader $bootpath/origboot.efi	    
 	    cp $edk2_dir/Build/Shell/RELEASE_GCC5/X64/Shell.efi $bootloader
 	fi
-	cp $edk2_dir/Build/Uload/RELEASE_GCC5/X64/Uload.efi /mnt/efi/EFI/BOOT/
-	cp $ucode /mnt/efi/EFI/BOOT/ucode.pdb
+        cp $edk2_dir/Build/Uload/RELEASE_GCC5/X64/Uload.efi /mnt/efi/EFI/BOOT/
+        cp $ucode /mnt/efi/EFI/BOOT/ucode.pdb
 	cat <<EOF > $bootpath/startup.nsh
 echo -off
 Uload.efi
