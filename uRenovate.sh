@@ -29,8 +29,9 @@ else
 fi
 
 ## try to find EFI boot partition
-#guesses=$(lsblk -i -o NAME,SIZE,TYPE,FSTYPE | grep "part.*fat" | wc -l)
+set +e
 guesses=$(lsblk -i -o NAME,SIZE,TYPE,MOUNTPOINT,FSTYPE | grep "part.*fat" | grep -v "initramfs.live" | wc -l)
+set -e
 if [ $guesses -eq 1 ]; then
     part=$(lsblk -i -o NAME,SIZE,TYPE,MOUNTPOINT,FSTYPE | grep "part.*fat" | grep -v "initramfs.live" | cut -d " " -f 1 | sed 's/|-//')
     echo "Found an EFI partition: $part"
@@ -38,7 +39,7 @@ elif [ $guesses -eq 0 ]; then
     echo "Could not find an EFI partition, exiting."
     exit 1
 else
-    echo "Support for multiple EFI partitions not implemented yet."
+    echo "Support for multiple EFI partitions not implemented."
     exit 1
 fi
 
