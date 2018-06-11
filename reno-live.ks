@@ -43,6 +43,7 @@ echo "nameserver 8.8.8.8" > /etc/resolv.conf
 git clone https://github.com/syncsrc/MicroRenovator.git
 git clone https://github.com/tianocore/edk2.git
 mv edk2/* MicroRenovator/edk2/
+sed -i 's/^offline="false"/offline="true" /' /MicroRenovator/uRenovate.sh
 
 ## Liveuser scripts autorun fedora-welcome on startup
 ## Replace it with a terminal to run MicroRenovator
