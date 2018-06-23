@@ -8,18 +8,37 @@ bootloader of your system. Running this program can result in \
 corruption of the operating system and loss of data. \
 Are you sure you want to continue? (yes/no): "
 
+edk2_dir="$(pwd)/edk2/"   # Default location to look for EFI binaries
+install="true"            # Default action is to install
+uninstall="false"
+offline="false"           # Set to true by kickstart script for offline use
+demo="false"              # Enable auto-uninstall and extra breakpoints
+
+## check command line options
+while getopts ":u" o; do
+    case "${o}" in
+        u)  uninstall="true"
+	    install="false"
+            ;;
+        *)  echo 'This script will install a microcode update program to the EFI boot partition.'
+            echo
+            echo 'usage'
+            echo 'uRenovate.sh [-u]'
+            exit 0
+            ;;
+    esac
+done
+shift $((OPTIND-1))
+
+## Display warning, get confirmation
 read -p "$warning" -r
 echo
 if [[ ! $REPLY =~ ^[Yy] ]]
 then
-    exit 1
+    exit 0
 fi
 
-edk2_dir="$(pwd)/edk2/"   # Default location to look for EFI binaries
-offline="false"           # Set to true by kickstart script for offline use
-install="true"            # Default action is to install
-demo="false"              # Enable extra breakpoints during demonstrations
-
+## You're letting this script modify your bootloader
 if [[ $EUID -ne 0 ]]; then
    echo "ERROR: This script must be run as root"
    exit 1
@@ -117,7 +136,7 @@ if [ "$bootloader" == "" ]; then
 fi
 
 ## Uload needs to run from the default EFI boot directory
-## Exit if it's not found
+## Can only handle standard EFI boot configuration, so exit if it's not found
 if [ ! -d /mnt/efi/EFI/BOOT/ ]; then
     echo "ERROR: couldn't find /EFI/BOOT/ directory"
     exit 1
@@ -125,10 +144,14 @@ fi
 
 ## Check for previous installation of Micro Renovator
 if cmp --quiet $bootloader $edk2_dir/Build/Shell/RELEASE_GCC5/X64/Shell.efi; then
-    echo "WARNING: Bootloader application is already Shell.efi, canceling instalation."
+    if [ "$install" == "true" ]; then
+	echo "WARNING: Bootloader application is already Shell.efi, canceling instalation."
+    fi
     install="false"
 elif [ -e $bootpath/origboot.efi ]; then
-    echo "WARNING: Old bootloader already exists at $bootpath/origboot.efi, canceling instalation."
+    if [ "$install" == "true" ]; then
+	echo "WARNING: Old bootloader already exists at $bootpath/origboot.efi, canceling instalation."
+    fi
     install="false"
 elif [ -e /mnt/efi/EFI/BOOT/Uload.efi ]; then
     echo "ERROR: found /mnt/efi/EFI/BOOT/Uload.efi but no backup of original bootloader."
@@ -142,16 +165,19 @@ fi
 
 ## Install/Uninstall Uload.efi
 if [ "$install" == "true" ]; then
-    echo "Installing MicroRenovator"
+    echo "Backing up original bootloader to $bootpath/origboot.efi"
     mv $bootloader $bootpath/origboot.efi
+    echo "Installing UEFI shell."
     cp $edk2_dir/Build/Shell/RELEASE_GCC5/X64/Shell.efi $bootloader
+    echo "Installing microcode loader."
     cp $edk2_dir/Build/Uload/RELEASE_GCC5/X64/Uload.efi /mnt/efi/EFI/BOOT/
     cp $ucode /mnt/efi/EFI/BOOT/ucode.pdb
     if [ "$demo" == "true" ]; then
 	cat <<EOF > $bootpath/startup.nsh
 echo -off
 Uload.efi
-cd $shortbootpath
+pause
+$shortbootpath\origboot.efi
 EOF
     else
 	cat <<EOF > $bootpath/startup.nsh
@@ -163,11 +189,17 @@ EOF
     echo
     echo "-------------------------------------"
     echo "|   Microcode Renovation complete   |"
-    echo "|  To uninstall, rerun uRenovate.sh |"
+    echo "| To uninstall, run uRenovate.sh -u |"
     echo "-------------------------------------"
-else
-    echo "Uninstalling MicroRenovator"
-    mv $bootpath/origboot.efi $bootloader
+elif [ "$uninstall" == "true" ] || [ "$demo" == "true" ]; then
+    if [ -e $bootpath/origboot.efi ]; then
+	echo "Restoring original bootloader from $bootpath/origboot.efi"
+	mv $bootpath/origboot.efi $bootloader
+    else
+	echo "ERROR: Could not find original bootloader to restore. Uninstall Failed."
+	exit 1
+    fi
+    echo "Removing microcode loader."
     if [ -e /mnt/efi/EFI/BOOT/Uload.efi ]; then
 	rm /mnt/efi/EFI/BOOT/Uload.efi
     else
@@ -188,4 +220,6 @@ else
     echo "|     Microcode Renovation complete     |"
     echo "| Microcode loader has been uninstalled |"
     echo "-----------------------------------------"
+else
+    echo "Microcode loader already installed on this system. No action taken."
 fi
