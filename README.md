@@ -60,8 +60,8 @@ any other live image. Once booted into this live image, simply run the uRenovate
 
 ## Building EFI Utilities
 
-Building the EFI applications requires an [EDK2 environment]
-(https://github.com/tianocore/tianocore.github.io/wiki/Common-instructions).
+Building the EFI applications requires an 
+[EDK2 environment](https://github.com/tianocore/tianocore.github.io/wiki/Common-instructions).
 
 Copy the Uload directory into the edk2/ folder of a configured EDK2 environment, 
 and run the following:
