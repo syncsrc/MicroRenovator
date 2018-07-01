@@ -65,7 +65,7 @@ build -a X64 -p ShellPkg/ShellPkg.dsc -b RELEASE
 build -a X64 -p Uload/Uload.dsc -b RELEASE
 ```
 
-To use the resulting files instead of the provided .efi binaries, change the "edk2_dir" in uRenovate.sh
+To use the resulting files instead of the provided .efi binaries, change the "edk2_dir" in uRenovate.sh to point at the desired edk2/ directory.
 
 If using a LiveCD created by the MicroRenovator kickstart file, running the
 included build_efi.sh script will generate the necessary files.
