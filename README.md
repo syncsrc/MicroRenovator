@@ -3,9 +3,9 @@ Pre-OS microcode updater
 
 # WARNING
 
-This application is designed to modify the EFI partition and bootloader of
+*_This application is designed to modify the EFI partition and bootloader of
 your system. Users acknowledge that running this program can result 
-in corruption of the operating system and loss of data.
+in corruption of the operating system and loss of data._*
 
 
 ## Usage
@@ -52,20 +52,20 @@ Finally, run LiveCD-Creator to build the ISO
 ```
 livecd-creator --verbose --config=reno-live.ks --fslabel=URENO
 ```
+The resulting URENO.iso file is a bootable image that can be burned to a DVD or USB drive like any other live image.
+
 
 ## Building EFI Utilities
 
-Building the EFI applications requires an EDK2 environment:
-https://github.com/tianocore/tianocore.github.io/wiki/Common-instructions
+Building the EFI applications requires an [EDK2 environment](https://github.com/tianocore/tianocore.github.io/wiki/Common-instructions).
 
-Copy the Uload directory into the edk2/ folder, and run the following:
+Copy the Uload directory into the edk2/ folder of a configured EDK2 environment, and run the following:
 ```
 build -a X64 -p ShellPkg/ShellPkg.dsc -b RELEASE
 build -a X64 -p Uload/Uload.dsc -b RELEASE
 ```
 
-To use the resulting files instead of the provided .efi binaries,
-change the "edk2_dir" in uRenovate.sh
+To use the resulting files instead of the provided .efi binaries, change the "edk2_dir" in uRenovate.sh
 
 If using a LiveCD created by the MicroRenovator kickstart file, running the
 included build_efi.sh script will generate the necessary files.
