@@ -21,7 +21,7 @@ uuid-devel
 uuid-c++-devel
 libuuid
 libuuid-devel
-nasm 
+nasm
 @Development Tools
 gcc
 gcc-c++
@@ -55,6 +55,16 @@ cat << EOF > /usr/share/anaconda/gnome/ureno.sh
 #!/bin/bash
 cd /MicroRenovator/
 sudo -s
+clear
+echo "-------------------------------------------------"
+echo "|     Welcome to the MicroRenovator Live CD     |"
+echo "|                                               |"
+echo "| To install the microcode loader to your boot  |"
+echo "| partition run ./uRenovate.sh                  |"
+echo "|                                               |"
+echo "| To manually build the microcode loader, first |"
+echo "| run the ./build_efi.sh script.                |"
+echo "-------------------------------------------------"
 EOF
 chmod +x /usr/share/anaconda/gnome/ureno.sh
 
