@@ -175,6 +175,8 @@ if [ "$install" == "true" ]; then
     if [ "$demo" == "true" ]; then
 	cat <<EOF > $bootpath/startup.nsh
 echo -off
+echo "To skip microcode load, (q)uit script and run $shortbootpath\origboot.efi manually."
+pause
 Uload.efi
 pause
 $shortbootpath\origboot.efi
