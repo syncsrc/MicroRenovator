@@ -54,8 +54,6 @@ mkdir -p /usr/share/anaconda/gnome/
 cat << EOF > /usr/share/anaconda/gnome/ureno.sh
 #!/bin/bash
 cd /MicroRenovator/
-sudo -s
-clear
 echo "-------------------------------------------------"
 echo "|     Welcome to the MicroRenovator Live CD     |"
 echo "|                                               |"
@@ -65,6 +63,7 @@ echo "|                                               |"
 echo "| To manually build the microcode loader, first |"
 echo "| run the ./build_efi.sh script.                |"
 echo "-------------------------------------------------"
+sudo -s
 EOF
 chmod +x /usr/share/anaconda/gnome/ureno.sh
 
