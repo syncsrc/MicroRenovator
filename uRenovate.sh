@@ -59,14 +59,26 @@ if [ $offline == "false" ]; then
     fi
 fi
 
-## find appropriate microcode file for this system
-## TODO: add use of --date-after=YYYY-MM-DD switch?
-bundle=$(iucode_tool -S -l /lib/firmware/intel-ucode/ | tail -n 1 | sed 's#^  0\(.*\)/...: sig.*#\1#')
+## find a microcode file for this system to fix Spectre
+set +e
+bundle=$(iucode_tool --date-after=2017-11-15 -S -l /lib/firmware/intel-ucode/ | grep sig | sed 's#^  0\(.*\)/...: sig.*#\1#')
+set -e
+if [ "$bundle" == "" ]; then
+    echo "ERROR: Could not find a microcode patch for this system that fixes Spectre."
+    if [ "$offline" == "true" ]; then
+	echo "       Try running in online mode to download the latest updates."
+    fi
+    exit 1
+fi
+
+## Get the location of the microcode patch file to copy to the EFI partition
+set +e
 ucode=$(iucode_tool -l /lib/firmware/intel-ucode/ | grep "microcode bundle $bundle" | cut -d " " -f 4)
+set -e
 if [ -e $ucode ]; then
     echo "Found microcode file for this system at: $ucode"
 else
-    echo "ERROR: Could not find microcode for this system"
+    echo "ERROR: Could not find file for microcode bundle $bundle"
     exit 1
 fi
 
