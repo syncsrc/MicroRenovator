@@ -11,19 +11,21 @@ Are you sure you want to continue? (yes/no): "
 edk2_dir="$(pwd)/edk2/"   # Default location to look for EFI binaries
 install="true"            # Default action is to install
 uninstall="false"
-offline="false"           # Set to true by kickstart script for offline use
+offline="false"           # Run in offline mode. Set to true by kickstart script
 demo="false"              # Enable auto-uninstall and extra breakpoints
 
 ## check command line options
-while getopts ":u" o; do
+while getopts ":uo" o; do
     case "${o}" in
         u)  uninstall="true"
 	    install="false"
             ;;
+	o)  offline="true"
+	    ;;
         *)  echo 'This script will install a microcode update program to the EFI boot partition.'
             echo
             echo 'usage'
-            echo 'uRenovate.sh [-u]'
+            echo 'uRenovate.sh [-o] [-u]'
             exit 0
             ;;
     esac
@@ -97,41 +99,38 @@ if [ -e /mnt/efi ]; then
 else
     mkdir -p /mnt/efi
 fi
-echo "Mounting EFI partition at /mnt/efi/"
+drive=$(echo $part | grep -o "[[:alpha:]]*")
+partnum=$(echo $part | grep -o "[[:digit:]]*$")
+echo "Mounting EFI partition on $drive (partition number $partnum) at /mnt/efi/"
 mount $(find /dev -name $part) /mnt/efi/
 
-## Build list of bootloader files from EFI boot variables and defaults
-bootloader=""
-bootloaders=""
+
 set +e
-testboot=$(efivar -l | grep -o Boot0...)
-for boot in $testboot; do
-    echo "Checking EFI entry $boot"
-    newbootloader=$(efibootdump $boot | grep -io "File.*efi" | awk -F'\' '{print $NF}')
-    if [ "$newbootloader" != "" ]; then
-	bootloaders="$bootloaders $newbootloader"
-	echo "    Found $newbootloader"
-    fi
-done
+testboot=$(efibootmgr | grep -i "MicroRenovator")
 set -e
-bootloaders=$(echo "$bootloaders bootx64.efi bootia32.efi" | sed 's/^ //')
+if [ "$testboot" != "" ]; then
+    echo "WARNING: Microrenovator has already been installed, canceling instalation."
+    install="false"
+fi
 
-## Look for bootloader files in EFI partition
-for entry in $bootloaders; do
-    echo "Looking for $entry"
-    bootloader=$(find /mnt/efi/ -iname "$entry")
-    if [ "$bootloader" != "" ]; then
-	echo "Bootloader found at: $bootloader"
-	bootpath=$(dirname "${bootloader}")
-	shortbootpath=$(echo "$bootpath" | sed 's#^/mnt/efi##' | tr '/' '\\')
-	bootname=$(basename "${bootloader}")
-	break
-    fi
-done
+## Look for Windows bootloader entry in EFI boot options
+set +e
+testboot=$(efibootmgr -v | grep -i "Boot.*Windows" | grep -io "File.*efi" | awk -F'\' '{print $NF}')
+set -e
+if [ "$testboot" == "" ]; then
+    echo "ERROR: No Windows bootloader found in EFI boot options."
+    exit 1
+fi
 
-## Exit if no EFI bootloader was found
-if [ "$bootloader" == "" ]; then
-    echo "ERROR: Could not find an EFI bootloader."
+## Look for bootloader file in EFI partition
+bootloader=$(find /mnt/efi/ -iname "$testboot")
+if [ "$bootloader" != "" ]; then
+    echo "Bootloader found at: $bootloader"
+    bootpath=$(dirname "${bootloader}")
+    shortbootpath=$(echo "$bootpath" | sed 's#^/mnt/efi##' | tr '/' '\\')
+    bootname=$(basename "${bootloader}")
+else
+    echo "ERROR: Could not find Windows EFI bootloader file. "
     exit 1
 fi
 
@@ -143,18 +142,13 @@ if [ ! -d /mnt/efi/EFI/BOOT/ ]; then
 fi
 
 ## Check for previous installation of Micro Renovator
-if cmp --quiet $bootloader $edk2_dir/Build/Shell/RELEASE_GCC5/X64/Shell.efi; then
+if [ -e /mnt/efi/EFI/BOOT/Shell.efi ]; then
     if [ "$install" == "true" ]; then
-	echo "WARNING: Bootloader application is already Shell.efi, canceling instalation."
-    fi
-    install="false"
-elif [ -e $bootpath/origboot.efi ]; then
-    if [ "$install" == "true" ]; then
-	echo "WARNING: Old bootloader already exists at $bootpath/origboot.efi, canceling instalation."
+	echo "WARNING: Shell.efi has already been installed, canceling instalation."
     fi
     install="false"
 elif [ -e /mnt/efi/EFI/BOOT/Uload.efi ]; then
-    echo "ERROR: found /mnt/efi/EFI/BOOT/Uload.efi but no backup of original bootloader."
+    echo "ERROR: found /mnt/efi/EFI/BOOT/Uload.efi on system without MicroRenovator boot entry."
     echo "ERROR: Previous installion corrupted. Manual cleanup needed before proceeding."
     exit 1
 elif [ -e /mnt/efi/EFI/BOOT/ucode.pdb ]; then
@@ -165,55 +159,63 @@ fi
 
 ## Install/Uninstall Uload.efi
 if [ "$install" == "true" ]; then
-    echo "Backing up original bootloader to $bootpath/origboot.efi"
-    mv $bootloader $bootpath/origboot.efi
     echo "Installing UEFI shell."
-    cp $edk2_dir/Build/Shell/RELEASE_GCC5/X64/Shell.efi $bootloader
+    cp $edk2_dir/Build/Shell/RELEASE_GCC5/X64/Shell.efi /mnt/efi/EFI/BOOT/
     echo "Installing microcode loader."
     cp $edk2_dir/Build/Uload/RELEASE_GCC5/X64/Uload.efi /mnt/efi/EFI/BOOT/
     cp $ucode /mnt/efi/EFI/BOOT/ucode.pdb
     if [ "$demo" == "true" ]; then
-	cat <<EOF > $bootpath/startup.nsh
+	cat <<EOF > /mnt/efi/EFI/BOOT/startup.nsh
 echo -off
-echo "To skip microcode load, (q)uit script and run $shortbootpath\origboot.efi manually."
+echo "To skip microcode load, (q)uit script and run $shortbootpath\\$bootname manually."
 pause
 Uload.efi
 pause
-$shortbootpath\origboot.efi
+$shortbootpath\\$bootname
 EOF
     else
-	cat <<EOF > $bootpath/startup.nsh
+	cat <<EOF > /mnt/efi/EFI/BOOT/startup.nsh
 echo -off
 Uload.efi
-$shortbootpath\origboot.efi
+$shortbootpath\\$bootname
 EOF
     fi
+    efibootmgr -c -d /dev/$drive -p $partnum -L MicroRenovator -l "\EFI\BOOT\Shell.efi"
     echo
     echo "-------------------------------------"
     echo "|   Microcode Renovation complete   |"
     echo "| To uninstall, run uRenovate.sh -u |"
     echo "-------------------------------------"
 elif [ "$uninstall" == "true" ] || [ "$demo" == "true" ]; then
-    if [ -e $bootpath/origboot.efi ]; then
-	echo "Restoring original bootloader from $bootpath/origboot.efi"
-	mv $bootpath/origboot.efi $bootloader
+    set +e
+    testboot=$(efibootmgr | grep -i "MicroRenovator" | grep -io "Boot0...")
+    set -e
+    if [ "$testboot" == "" ]; then
+	echo "WARNING: Can't find Microrenovator EFI Boot entry to remove."
     else
-	echo "ERROR: Could not find original bootloader to restore. Uninstall Failed."
-	exit 1
+	efibootmgr -b $(echo $testboot | sed 's/Boot0*//') -B
     fi
-    echo "Removing microcode loader."
+    if [ -e /mnt/efi/EFI/BOOT/Shell.efi ]; then
+	echo "Removing Shell.efi"
+	rm /mnt/efi/EFI/BOOT/Shell.efi
+    else
+	echo "WARNING: Shell.efi not found, unable to remove."
+    fi
     if [ -e /mnt/efi/EFI/BOOT/Uload.efi ]; then
+	echo "Removing microcode loader."
 	rm /mnt/efi/EFI/BOOT/Uload.efi
     else
 	echo "WARNING: Uload.efi not found, unable to remove."
     fi
     if [ -e /mnt/efi/EFI/BOOT/ucode.pdb ]; then
+	echo "Removing microcode patch file."
 	rm /mnt/efi/EFI/BOOT/ucode.pdb
     else
 	echo "WARNING: ucode.pdb not found, unable to remove."
     fi
-    if [ -e $bootpath/startup.nsh ]; then
-	rm $bootpath/startup.nsh
+    if [ -e /mnt/efi/EFI/BOOT/startup.nsh ]; then
+	echo "Removing EFI startup script."
+	rm /mnt/efi/EFI/BOOT/startup.nsh
     else
 	echo "WARNING: startup.nsh not found, unable to remove."
     fi
