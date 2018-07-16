@@ -56,7 +56,7 @@ copy of the kickstart files to work with.
 dnf -y install livecd-tools spin-kickstarts
 cp /usr/share/spin-kickstarts/\*.ks .
 ```
-The LiveCD utility will need to be modified to launch the desired OS on boot.
+The LiveCD utility will need to be modified to launch the correct OS on boot.
 ```
 sed -i 's/set default="1"/set default="0"/' /usr/lib/python3.6/site-packages/imgcreate/live.py
 ```
@@ -87,15 +87,13 @@ If using a LiveCD created by the MicroRenovator kickstart file, running the
 included build_efi.sh script will generate the necessary files.
 
 
-## ToDo
-* verify microcode in LiveCD /lib/firmware/intel-ucode/ folder is "good" (add "--date-after" switch in iucode_tool?)
-* add run-time warnings
-* error handling in EFI application and script
-* S3 callback?
-
-
 ## Known Issues
 * Not compatible with Sleep (S3). Hibernate is not impacted
 * Not currently compatible with UEFI secure boot
-* Windows update has been observed to revert bootloader changes made by MicroRenovator
 * Windows sometimes fails to boot after running Uload.efi, rebooting usually resolves the problem
+
+
+## ToDo
+* verify microcode in LiveCD /lib/firmware/intel-ucode/ folder is "good" (add "--date-after" switch in iucode_tool?)
+* error handling in EFI application and script
+* Investigate options for S3 callback (to fix sleep)
