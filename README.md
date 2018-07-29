@@ -1,5 +1,4 @@
-## MicroRenovator
-Pre-OS microcode updater
+# MicroRenovator
 
 ![MicroRenovator](https://github.com/syncsrc/syncsrc.github.io/blob/master/public/microrenovator.png?raw=true)
 
