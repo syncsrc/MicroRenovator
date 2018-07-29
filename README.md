@@ -1,6 +1,8 @@
 ## MicroRenovator
 Pre-OS microcode updater
 
+![MicroRenovator](https://github.com/syncsrc/syncsrc.github.io/blob/master/public/microrenovator.png?raw=true)
+
 # WARNING
 
 _This application is designed to modify the EFI partition and bootloader of
