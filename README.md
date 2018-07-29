@@ -22,8 +22,8 @@ microcode patches, leaving them unable to mitigate the Spectre vulnerabilities.
 MicroRenovator provides a mechanism for deploying processor microcode that is
 independent of both manufacturer and operating-system supplied updates, by
 adding a custom EFI boot script which loads microcode prior to the operating
-system being run. This enables the operating system kernel to detect and enable
-Spectre mitigations which require the updated microcode.
+system being run. This enables the operating system kernel to detect the updated
+microcode and enable Spectre mitigations that depend on it.
 
 ## Usage
 
