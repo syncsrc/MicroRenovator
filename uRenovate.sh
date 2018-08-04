@@ -180,14 +180,15 @@ if [ "$install" == "true" ]; then
 	cat <<EOF > /mnt/efi/EFI/BOOT/startup.nsh
 echo -off
 Uload.efi
-echo "Now running $shortbootpath\\$bootname"
 pause
+echo "Now running $shortbootpath\\$bootname"
 $shortbootpath\\$bootname
 EOF
     else
 	cat <<EOF > /mnt/efi/EFI/BOOT/startup.nsh
 echo -off
 Uload.efi
+echo "Now running $shortbootpath\\$bootname"
 $shortbootpath\\$bootname
 EOF
     fi
