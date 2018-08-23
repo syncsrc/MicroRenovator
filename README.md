@@ -102,6 +102,5 @@ included build_efi.sh script will generate the necessary files.
 
 
 ## ToDo
-* Update microcode patch selection once Spectre v4 fixes are available for all CPUs
 * error handling in EFI application and script
-* Investigate options for S3 callback (to fix sleep)
+* re-implement as DXE driver (to support S3)

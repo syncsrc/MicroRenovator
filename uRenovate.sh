@@ -1,4 +1,4 @@
-#!/bin/bash
+!/bin/bash
 
 set -euo pipefail
 #set -x
@@ -61,7 +61,7 @@ fi
 
 ## find a microcode file for this system to fix Spectre
 set +e
-bundle=$(iucode_tool --date-after=2017-11-15 -S -l /lib/firmware/intel-ucode/ | grep sig | sed 's#^  0\(.*\)/...: sig.*#\1#')
+bundle=$(iucode_tool --date-after=2018-03-20 -S -l /lib/firmware/intel-ucode/ | grep sig | sed 's#^  0\(.*\)/...: sig.*#\1#')
 set -e
 if [ "$bundle" == "" ]; then
     echo "ERROR: Could not find a microcode patch for this system that fixes Spectre."
