@@ -5,19 +5,21 @@
 # WARNING
 
 _This application is designed to modify the EFI partition and bootloader of
-your system. Users acknowledge that running this program can result 
+your system. Users acknowledge that running this program can result
 in corruption of the operating system and loss of data._
 
 
 ## Background
 
 The mitigations for [Spectre](https://spectreattack.com/) require updates to
-both operating system kernels and processor microcode. While microcode updates
-can be deployed at runtime, not all operating system vendors are redistributing
-processor microcode updates, instead relying on hardware manufactures to supply
-it through updated platform firmware. However, millions of system are no longer
-receiving manufacturer support, and so have no means to apply the processor
-microcode patches, leaving them unable to mitigate the Spectre vulnerabilities.
+both operating system kernels and
+[processor microcode](https://www.intel.com/content/dam/www/public/us/en/documents/sa00115-microcode-update-guidance.pdf).
+While microcode updates can be deployed at runtime, not all operating system
+vendors are redistributing processor microcode updates, instead relying on
+hardware manufactures to supply it through updated platform firmware. However,
+millions of system are no longer receiving manufacturer support, and so have
+no means to apply the processor microcode patches, leaving them unable to
+mitigate the Spectre vulnerabilities.
 
 MicroRenovator provides a mechanism for deploying processor microcode that is
 independent of both manufacturer and operating-system supplied updates, by
@@ -78,10 +80,10 @@ run the uRenovate.sh installer script.
 
 ## Building EFI Utilities
 
-Building the EFI applications requires an 
+Building the EFI applications requires an
 [EDK2 environment](https://github.com/tianocore/tianocore.github.io/wiki/Common-instructions).
 
-Copy the Uload directory into the edk2/ folder of a configured EDK2 environment, 
+Copy the Uload directory into the edk2/ folder of a configured EDK2 environment,
 and run the following:
 ```
 build -a X64 -p ShellPkg/ShellPkg.dsc -b RELEASE
